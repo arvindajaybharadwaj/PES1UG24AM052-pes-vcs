@@ -136,9 +136,38 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     ObjectID id;
     compute_hash(obj_buf, total_len, &id);
 
-    char hash_str[HASH_HEX_SIZE + 1];
-    hash_to_hex(&id, hash_str);
-    printf("HASH: %s\n", hash_str);
+    if (object_exists(&id))
+    {
+        if (id_out)
+            *id_out = id;
+        free(obj_buf);
+        return 0;
+    }
+
+    char path[512];
+    object_path(&id, path, sizeof(path));
+
+    char dir[512];
+    char *slash = strrchr(path, '/');
+    if (!slash)
+    {
+        free(obj_buf);
+        return -1;
+    }
+
+    size_t dir_len = slash - path; // number of chars before last '/'
+
+    if (dir_len >= sizeof(dir))
+    {
+        free(obj_buf);
+        return -1;
+    }
+
+    strncpy(dir, path, dir_len);
+    dir[dir_len] = '\0';
+    mkdir(dir, 0755);
+
+    printf("DIR: %s\n", dir);
 
     return -1;
 }

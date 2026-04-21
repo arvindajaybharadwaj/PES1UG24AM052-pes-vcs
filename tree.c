@@ -148,18 +148,90 @@ int tree_serialize(const Tree *tree, void **data_out, size_t *len_out)
 
 // Check if path belongs to a given prefix
 
-static int match_prefix(const char *path, const char *prefix)
-
+static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
 {
-    size_t plen = strlen(prefix);
+    Tree tree;
+    tree.count = 0;
 
-    if (plen == 0)
-        return 1;
+    int i = 0;
+    while (i < count)
+    {
+        char *slash = strchr(entries[i].path, '/');
 
-    if (strncmp(path, prefix, plen) != 0)
-        return 0;
+        if (!slash)
+        {
+            TreeEntry *e = &tree.entries[tree.count++];
 
-    return path[plen] == '/';
+            e->mode = entries[i].mode;
+            strcpy(e->name, entries[i].path);
+            e->hash = entries[i].hash;
+
+            i++;
+        }
+        else
+        {
+            char dir[256];
+            int len = slash - entries[i].path;
+
+            strncpy(dir, entries[i].path, len);
+            dir[len] = '\0';
+
+            IndexEntry *sub = malloc(sizeof(IndexEntry) * MAX_INDEX_ENTRIES);
+            if (!sub)
+                return -1;
+            int sub_count = 0;
+
+            int j = i;
+            while (j < count)
+            {
+                if (strncmp(entries[j].path, dir, len) == 0 &&
+                    entries[j].path[len] == '/')
+                {
+
+                    sub[sub_count] = entries[j];
+                    strcpy(sub[sub_count].path,
+                           entries[j].path + len + 1);
+
+                    sub_count++;
+                    j++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            ObjectID sub_id;
+            if (write_level(sub, sub_count, &sub_id) != 0)
+            {
+                free(sub);
+                return -1;
+            }
+
+            TreeEntry *e = &tree.entries[tree.count++];
+            e->mode = MODE_DIR;
+            strcpy(e->name, dir);
+            e->hash = sub_id;
+
+            i = j;
+            free(sub);
+        }
+    }
+
+    void *data;
+    size_t len;
+
+    if (tree_serialize(&tree, &data, &len) != 0)
+        return -1;
+
+    if (object_write(OBJ_TREE, data, len, id_out) != 0)
+    {
+        free(data);
+        return -1;
+    }
+
+    free(data);
+    return 0;
 }
 
 int tree_from_index(ObjectID *id_out)

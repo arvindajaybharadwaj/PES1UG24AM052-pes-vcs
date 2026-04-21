@@ -250,7 +250,11 @@ int commit_create(const char *message, ObjectID *commit_id_out)
 
     printf("TREE: %s\n", hex);
 
+    if (commit_id_out)
+    {
+        *commit_id_out = tree_id;
+    }
+
     (void)message;
-    (void)commit_id_out;
     return 0;
 }

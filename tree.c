@@ -11,6 +11,7 @@
 
 #include "index.h"
 #include "tree.h"
+#include "object.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -154,6 +155,7 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
     tree.count = 0;
 
     int i = 0;
+
     while (i < count)
     {
         char *slash = strchr(entries[i].path, '/');
@@ -176,9 +178,7 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
             strncpy(dir, entries[i].path, len);
             dir[len] = '\0';
 
-            IndexEntry *sub = malloc(sizeof(IndexEntry) * MAX_INDEX_ENTRIES);
-            if (!sub)
-                return -1;
+            IndexEntry sub[MAX_INDEX_ENTRIES];
             int sub_count = 0;
 
             int j = i;
@@ -189,6 +189,7 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
                 {
 
                     sub[sub_count] = entries[j];
+
                     strcpy(sub[sub_count].path,
                            entries[j].path + len + 1);
 
@@ -204,7 +205,6 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
             ObjectID sub_id;
             if (write_level(sub, sub_count, &sub_id) != 0)
             {
-                free(sub);
                 return -1;
             }
 
@@ -214,7 +214,6 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
             e->hash = sub_id;
 
             i = j;
-            free(sub);
         }
     }
 
@@ -236,7 +235,6 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
 
 int tree_from_index(ObjectID *id_out)
 {
-    // TODO: Implement recursive tree building
     Index index;
     if (index_load(&index) != 0)
         return -1;

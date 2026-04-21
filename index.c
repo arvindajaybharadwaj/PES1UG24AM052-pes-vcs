@@ -258,18 +258,42 @@ int index_add(Index *index, const char *path)
     if (!f)
         return -1;
 
-    fseek(f, 0, SEEK_END);
-    size_t size = ftell(f);
-    rewind(f);
-
-    void *buf = malloc(size);
-    if (!buf)
+    if (fseek(f, 0, SEEK_END) != 0)
     {
         fclose(f);
         return -1;
     }
 
-    fread(buf, 1, size, f);
+    long sz = ftell(f);
+
+    if (sz < 0)
+    {
+        fclose(f);
+        return -1;
+    }
+
+    size_t size = (size_t)sz;
+    rewind(f);
+
+    void *buf = NULL;
+
+    if (size > 0)
+    {
+        buf = malloc(size);
+        if (!buf)
+        {
+            fclose(f);
+            return -1;
+        }
+
+        if (fread(buf, 1, size, f) != size)
+        {
+            free(buf);
+            fclose(f);
+            return -1;
+        }
+    }
+
     fclose(f);
 
     ObjectID id;
@@ -290,6 +314,9 @@ int index_add(Index *index, const char *path)
     IndexEntry *e = index_find(index, path);
     if (!e)
     {
+        if (index->count >= MAX_INDEX_ENTRIES)
+            return -1;
+
         e = &index->entries[index->count++];
     }
 

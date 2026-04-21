@@ -167,7 +167,33 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     dir[dir_len] = '\0';
     mkdir(dir, 0755);
 
-    printf("DIR: %s\n", dir);
+    char tmp_path[550];
+    snprintf(tmp_path, sizeof(tmp_path), "%s/tmp", dir);
+
+    int fd = open(tmp_path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd < 0)
+    {
+        free(obj_buf);
+        return -1;
+    }
+
+    if (write(fd, obj_buf, total_len) != (ssize_t)total_len)
+    {
+        close(fd);
+        unlink(tmp_path);
+        free(obj_buf);
+        return -1;
+    }
+
+    if (fsync(fd) < 0)
+    {
+        close(fd);
+        unlink(tmp_path);
+        free(obj_buf);
+        return -1;
+    }
+
+    close(fd);
 
     return -1;
 }

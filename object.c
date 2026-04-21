@@ -125,7 +125,21 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
 
     int header_len = snprintf(header, sizeof(header), "%s %zu", type_str, len) + 1;
 
-    printf("HEADER:\n%s\nLen: %d\n", header, header_len);
+    size_t total_len = header_len + len;
+    char *obj_buf = malloc(total_len);
+    if (!obj_buf)
+        return -1;
+
+    memcpy(obj_buf, header, header_len);
+    memcpy(obj_buf + header_len, data, len);
+
+    ObjectID id;
+    compute_hash(obj_buf, total_len, &id);
+
+    char hash_str[HASH_HEX_SIZE + 1];
+    hash_to_hex(&id, hash_str);
+    printf("HASH: %s\n", hash_str);
+
     return -1;
 }
 

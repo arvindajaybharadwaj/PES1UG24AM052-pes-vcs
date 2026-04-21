@@ -261,12 +261,23 @@ int commit_create(const char *message, ObjectID *commit_id_out)
     c.timestamp = (uint64_t)time(NULL);
     snprintf(c.message, sizeof(c.message), "%s", message);
 
-    printf("COMMIT STRUCT READY\n");
+    void *data;
+    size_t len;
 
-    if (commit_id_out)
+    if (commit_serialize(&c, &data, &len) != 0)
+        return -1;
+
+    if (object_write(OBJ_COMMIT, data, len, commit_id_out) != 0)
     {
-        *commit_id_out = tree_id; // temporary
+        free(data);
+        return -1;
     }
+
+    free(data);
+
+    char hex[HASH_HEX_SIZE + 1];
+    hash_to_hex(commit_id_out, hex);
+    printf("COMMIT OBJECT: %s\n", hex);
 
     return 0;
 }

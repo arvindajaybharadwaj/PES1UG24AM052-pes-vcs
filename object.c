@@ -241,9 +241,47 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
 int object_read(const ObjectID *id, ObjectType *type_out, void **data_out, size_t *len_out)
 {
     // TODO: Implement
-    (void)id;
-    (void)type_out;
-    (void)data_out;
-    (void)len_out;
-    return -1;
+    char path[512];
+    object_path(id, path, sizeof(path));
+
+    FILE *f = fopen(path, "rb");
+    if (!f)
+        return -1;
+
+    fseek(f, 0, SEEK_END);
+    long file_size = ftell(f);
+    rewind(f);
+
+    if (file_size <= 0)
+    {
+        fclose(f);
+        return -1;
+    }
+
+    unsigned char *buf = malloc(file_size);
+    if (!buf)
+    {
+        fclose(f);
+        return -1;
+    }
+
+    if (fread(buf, 1, file_size, f) != (size_t)file_size)
+    {
+        free(buf);
+        fclose(f);
+        return -1;
+    }
+    fclose(f);
+
+    ObjectID computed;
+    compute_hash(buf, file_size, &computed);
+    if (memcmp(&computed, id, sizeof(ObjectID)) != 0)
+    {
+        free(buf);
+        return -1;
+    }
+
+    char hash_str[HASH_HEX_SIZE + 1];
+    hash_to_hex(&computed, hash_str);
+    printf("HASH: %s\n", hash_str);
 }

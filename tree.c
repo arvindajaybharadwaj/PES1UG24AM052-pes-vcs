@@ -178,7 +178,10 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
             strncpy(dir, entries[i].path, len);
             dir[len] = '\0';
 
-            IndexEntry sub[MAX_INDEX_ENTRIES];
+            IndexEntry *sub = malloc(sizeof(IndexEntry) * MAX_INDEX_ENTRIES);
+            if (!sub)
+                return -1;
+
             int sub_count = 0;
 
             int j = i;
@@ -205,6 +208,7 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
             ObjectID sub_id;
             if (write_level(sub, sub_count, &sub_id) != 0)
             {
+                free(sub);
                 return -1;
             }
 
@@ -214,6 +218,7 @@ static int write_level(IndexEntry *entries, int count, ObjectID *id_out)
             e->hash = sub_id;
 
             i = j;
+            free(sub);
         }
     }
 

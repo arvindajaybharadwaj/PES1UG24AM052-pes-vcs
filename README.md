@@ -21,7 +21,7 @@ This is a **template repository**. Do **not** fork it.
 1. Click **"Use this template"** → **"Create a new repository"** on GitHub
 2. Name your repository (e.g., `SRN-pes-vcs`) and set it to **public**. Replace `SRN` with your actual SRN, e.g., `PESXUG24CSYYY-pes-vcs`
 3. Clone this repository to your local machine and do all your lab work inside this directory.
-4.  **Important:** Remember to commit frequently as you progress. You are required to have a minimum of 5 detailed commits per phase. Refer to [Submission Requirements](#submission-requirements) for more details.
+4. **Important:** Remember to commit frequently as you progress. You are required to have a minimum of 5 detailed commits per phase. Refer to [Submission Requirements](#submission-requirements) for more details.
 5. Clone your new repository and start working
 
 The repository contains skeleton source files with `// TODO` markers where you need to write code. Functions marked `// PROVIDED` are complete — do not modify them.
@@ -46,21 +46,21 @@ If unset, it defaults to `"PES User <pes@localhost>"`.
 
 ### File Inventory
 
-| File               | Role                                 | Your Task                                          |
-| ------------------ | ------------------------------------ | -------------------------------------------------- |
-| `pes.h`            | Core data structures and constants   | Do not modify                                      |
-| `object.c`         | Content-addressable object store     | Implement `object_write`, `object_read`            |
-| `tree.h`           | Tree object interface                | Do not modify                                      |
-| `tree.c`           | Tree serialization and construction  | Implement `tree_from_index`                        |
-| `index.h`          | Staging area interface               | Do not modify                                      |
-| `index.c`          | Staging area (text-based index file) | Implement `index_load`, `index_save`, `index_add`  |
-| `commit.h`         | Commit object interface              | Do not modify                                      |
-| `commit.c`         | Commit creation and history          | Implement `commit_create`                          |
-| `pes.c`            | CLI entry point and command dispatch | Do not modify                                      |
-| `test_objects.c`   | Phase 1 test program                 | Do not modify                                      |
-| `test_tree.c`      | Phase 2 test program                 | Do not modify                                      |
-| `test_sequence.sh` | End-to-end integration test          | Do not modify                                      |
-| `Makefile`         | Build system                         | Do not modify                                      |
+| File               | Role                                 | Your Task                                         |
+| ------------------ | ------------------------------------ | ------------------------------------------------- |
+| `pes.h`            | Core data structures and constants   | Do not modify                                     |
+| `object.c`         | Content-addressable object store     | Implement `object_write`, `object_read`           |
+| `tree.h`           | Tree object interface                | Do not modify                                     |
+| `tree.c`           | Tree serialization and construction  | Implement `tree_from_index`                       |
+| `index.h`          | Staging area interface               | Do not modify                                     |
+| `index.c`          | Staging area (text-based index file) | Implement `index_load`, `index_save`, `index_add` |
+| `commit.h`         | Commit object interface              | Do not modify                                     |
+| `commit.c`         | Commit creation and history          | Implement `commit_create`                         |
+| `pes.c`            | CLI entry point and command dispatch | Do not modify                                     |
+| `test_objects.c`   | Phase 1 test program                 | Do not modify                                     |
+| `test_tree.c`      | Phase 2 test program                 | Do not modify                                     |
+| `test_sequence.sh` | End-to-end integration test          | Do not modify                                     |
+| `Makefile`         | Build system                         | Do not modify                                     |
 
 ---
 
@@ -124,6 +124,7 @@ A tree represents a directory. It's a list of entries, each pointing to a blob (
 ```
 
 Mode values:
+
 - `100644` — regular file, not executable
 - `100755` — regular file, executable
 - `040000` — directory (tree)
@@ -237,6 +238,7 @@ def store_object(content):
 ```
 
 This gives us:
+
 - **Deduplication:** Identical files stored once
 - **Integrity:** Hash verifies data isn't corrupted
 - **Immutability:** Changing content = different hash = different object
@@ -370,6 +372,7 @@ make test_objects
 ```
 
 The test program verifies:
+
 - Blob storage and retrieval (write, read back, compare)
 - Deduplication (same content → same hash → stored once)
 - Integrity checking (detects corrupted objects)
@@ -403,6 +406,7 @@ make test_tree
 ```
 
 The test program verifies:
+
 - Serialize → parse roundtrip preserves entries, modes, and hashes
 - Deterministic serialization (same entries in any order → identical output)
 
@@ -552,22 +556,22 @@ The following questions cover filesystem concepts beyond the implementation scop
 | 1     | 1A  | `./test_objects` output showing all tests passing               |
 | 1     | 1B  | `find .pes/objects -type f` showing sharded directory structure |
 | 2     | 2A  | `./test_tree` output showing all tests passing                  |
-| 2     | 2B  | `xxd` of a raw tree object (first 20 lines)                    |
-| 3     | 3A  | `pes init` → `pes add` → `pes status` sequence                 |
+| 2     | 2B  | `xxd` of a raw tree object (first 20 lines)                     |
+| 3     | 3A  | `pes init` → `pes add` → `pes status` sequence                  |
 | 3     | 3B  | `cat .pes/index` showing the text-format index                  |
-| 4     | 4A  | `pes log` output with three commits                            |
-| 4     | 4B  | `find .pes -type f \| sort` showing object growth              |
-| 4     | 4C  | `cat .pes/refs/heads/main` and `cat .pes/HEAD`                 |
+| 4     | 4A  | `pes log` output with three commits                             |
+| 4     | 4B  | `find .pes -type f \| sort` showing object growth               |
+| 4     | 4C  | `cat .pes/refs/heads/main` and `cat .pes/HEAD`                  |
 | Final | --  | Full integration test (`make test-integration`)                 |
 
 ### Code Files Required (5 files)
 
-| File           | Description                              |
-| -------------- | ---------------------------------------- |
-| `object.c`     | Object store implementation              |
-| `tree.c`       | Tree serialization and construction      |
-| `index.c`      | Staging area implementation              |
-| `commit.c`     | Commit creation and history walking      |
+| File       | Description                         |
+| ---------- | ----------------------------------- |
+| `object.c` | Object store implementation         |
+| `tree.c`   | Tree serialization and construction |
+| `index.c`  | Staging area implementation         |
+| `commit.c` | Commit creation and history walking |
 
 ### Analysis Questions (written answers)
 
@@ -576,22 +580,25 @@ The following questions cover filesystem concepts beyond the implementation scop
 | Branching (analysis-only) | Q5.1, Q5.2, Q5.3 |
 | GC (analysis-only)        | Q6.1, Q6.2       |
 
------------
+---
 
 ## Submission Requirements
 
 **1. GitHub Repository**
-* You must submit the link to your GitHub repository via the official submission link (which will be shared by your respective faculty).
-* The repository must strictly maintain the directory structure you built throughout this lab.
-* Ensure your github repository is made `public`
+
+- You must submit the link to your GitHub repository via the official submission link (which will be shared by your respective faculty).
+- The repository must strictly maintain the directory structure you built throughout this lab.
+- Ensure your github repository is made `public`
 
 **2. Lab Report**
-* Your report, containing all required **screenshots** and answers to the **analysis questions**, must be placed at the **root** of your repository directory.
-* The report must be submitted as either a PDF (`report.pdf`) or a Markdown file (`README.md`).
+
+- Your report, containing all required **screenshots** and answers to the **analysis questions**, must be placed at the **root** of your repository directory.
+- The report must be submitted as either a PDF (`report.pdf`) or a Markdown file (`README.md`).
 
 **3. Commit History (Graded Requirement)**
-* **Minimum Requirement:** You must have a minimum of **5 commits per phase** with appropriate commit messages. Submitting fewer than 5 commits for any given phase will result in a deduction of marks.
-* **Best Practices:** We highly prefer more than 5 detailed commits per phase. Granular commits that clearly show the delta in code block changes allow us to verify your step-by-step understanding of the concepts and prevent penalties <3
+
+- **Minimum Requirement:** You must have a minimum of **5 commits per phase** with appropriate commit messages. Submitting fewer than 5 commits for any given phase will result in a deduction of marks.
+- **Best Practices:** We highly prefer more than 5 detailed commits per phase. Granular commits that clearly show the delta in code block changes allow us to verify your step-by-step understanding of the concepts and prevent penalties <3
 
 ---
 
@@ -600,3 +607,60 @@ The following questions cover filesystem concepts beyond the implementation scop
 - **Git Internals** (Pro Git book): https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain
 - **Git from the inside out**: https://codewords.recurse.com/issues/two/git-from-the-inside-out
 - **The Git Parable**: https://tom.preston-werner.com/2009/05/19/the-git-parable.html
+
+## Report
+
+### Phase 1A
+
+![](images/1A.png)
+
+### Phase 1B
+
+![](images/1B.png)
+
+### Phase 2A
+
+![](images/2A.png)
+
+### Phase 2B
+
+![](images/2B.png)
+
+### Phase 3A
+
+![](images/3A.png)
+
+### Phase 4A
+
+![](images/4A.png)
+
+### Phase 4B
+
+![](images/4B.png)
+
+### Phase 4C
+
+![](images/4C.png)
+
+### Final Screenshot
+
+![](images/image.png)
+
+### Phase 5
+
+**Q5.1**
+Checkout updates .pes/HEAD to point to the target branch, reads the commit hash from .pes/refs/heads/{branch}, loads its tree, and rewrites the working directory to match that tree. It also updates the index to reflect the new snapshot. The complexity comes from safely handling file overwrites, deletions, and directory structure changes while avoiding loss of uncommitted work.
+
+**Q5.2**
+For each tracked file, compare the working directory state with the index by recomputing the hash. If a file is modified relative to the index and also differs between the current tree and target tree, checkout must refuse. This detects conflicts by comparing working directory vs index and index vs target tree.
+
+**Q5.3**
+In detached HEAD, commits are created normally but no branch points to them, so they become unreachable once you move away. The user can recover them if they know the commit hash by creating a new branch pointing to it, or by checking it out again before it is garbage collected.
+
+### Phase 6
+
+**Q6.1**
+Start from all branch heads and traverse commits, trees, and blobs using DFS or BFS, marking all reachable object hashes in a hash set. Then scan the object store and delete any object not in the reachable set. With 100k commits and shared history, traversal is roughly 100k commits plus their trees and blobs, not multiplied by branches.
+
+**Q6.2**
+If GC runs while a commit is being created, it may delete objects (like blobs or trees) that are written but not yet referenced by any commit. The commit then ends up pointing to missing objects. Git avoids this by writing objects before updating refs, delaying deletion of recent objects, and using safeguards like timestamps and locks to prevent such races.

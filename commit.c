@@ -77,7 +77,15 @@ int commit_parse(const void *data, size_t len, Commit *commit_out)
     p = strchr(p, '\n') + 1; // skip committer line
     p = strchr(p, '\n') + 1; // skip blank line
 
-    snprintf(commit_out->message, sizeof(commit_out->message), "%s", p);
+    size_t remaining = (const char *)data + len - p;
+
+    if (remaining >= sizeof(commit_out->message))
+    {
+        remaining = sizeof(commit_out->message) - 1;
+    }
+
+    memcpy(commit_out->message, p, remaining);
+    commit_out->message[remaining] = '\0';
     return 0;
 }
 
@@ -275,9 +283,14 @@ int commit_create(const char *message, ObjectID *commit_id_out)
 
     free(data);
 
+    if (head_update(commit_id_out) != 0)
+    {
+        return -1;
+    }
+
     char hex[HASH_HEX_SIZE + 1];
     hash_to_hex(commit_id_out, hex);
-    printf("COMMIT OBJECT: %s\n", hex);
+    printf("[%s] %s\n", hex, message);
 
     return 0;
 }

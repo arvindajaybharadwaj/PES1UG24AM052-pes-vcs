@@ -11,16 +11,20 @@
 
 #define MAX_TREE_ENTRIES 1024
 
-typedef struct {
-    uint32_t mode;          // 100644 (regular), 100755 (executable), 040000 (directory)
-    ObjectID hash;          // SHA-256 of the blob or subtree
-    char name[256];         // Entry name (filename or directory name, no path separators)
+typedef struct
+{
+    uint32_t mode;  // 100644 (regular), 100755 (executable), 040000 (directory)
+    ObjectID hash;  // SHA-256 of the blob or subtree
+    char name[256]; // Entry name (filename or directory name, no path separators)
 } TreeEntry;
 
-typedef struct {
+typedef struct
+{
     TreeEntry entries[MAX_TREE_ENTRIES];
     int count;
 } Tree;
+
+uint32_t get_file_mode(const char *path);
 
 // Parse raw tree object data (as read from the object store) into a Tree struct.
 int tree_parse(const void *data, size_t len, Tree *tree_out);

@@ -241,14 +241,27 @@ int commit_create(const char *message, ObjectID *commit_id_out)
     ObjectID tree_id;
 
     if (tree_from_index(&tree_id) != 0)
-    {
         return -1;
-    }
 
     char hex[HASH_HEX_SIZE + 1];
     hash_to_hex(&tree_id, hex);
 
     printf("TREE: %s\n", hex);
+
+    ObjectID parent_id;
+    int has_parent = (head_read(&parent_id) == 0);
+
+    if (has_parent)
+    {
+        char phex[HASH_HEX_SIZE + 1];
+        hash_to_hex(&parent_id, phex);
+        printf("PARENT: %s\n", phex);
+    }
+    else
+    {
+        printf("NO PARENT\n");
+    }
+    head_update(&tree_id);
 
     if (commit_id_out)
     {
